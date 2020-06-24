@@ -16,6 +16,20 @@ class SDKTest extends TestCase
      * @var array
      */
     protected $languages  = [
+        'js' => [
+            'class' => 'Appwrite\SDK\Language\JS',
+            'build' => [
+                'mkdir -p tests/sdks/js/tests',
+                'cp tests/languages/js/tests.js tests/sdks/js/tests/tests.js',
+                'cp tests/languages/js/browser.php tests/sdks/js/tests/browser.php',
+                'docker run --rm -v $(pwd):/app -w /app/tests/sdks/js node:14.4 npm install express', // Install dependencies
+                'docker run -d -p 4443:80 --rm -v $(pwd):/app -w /app/tests/sdks/js node:14.4 node tests/sdks/js/tests/tests.js', // Run Local Server
+                'docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:4', // Run Chrome
+            ],
+            'envs' => [
+                'nodejs-14' => 'docker run --rm -v $(pwd):/app -w /app node:14.4 node tests/sdks/js/tests/tests.js',
+            ],
+        ],
         'php' => [
             'class' => 'Appwrite\SDK\Language\PHP',
             'build' => [
@@ -42,7 +56,6 @@ class SDKTest extends TestCase
                 //'dart-2.8-dev' => 'docker run --rm -v $(pwd):/app -w /app/tests/sdks/dart --env PUB_CACHE=tests/sdks/dart/vendor google/dart:2.8-dev pub run test/tests.dart',
             ],
         ],
-
         'java' => [
             'class' => 'Appwrite\SDK\Language\Java',
             'build' => [
@@ -54,7 +67,6 @@ class SDKTest extends TestCase
                 //'java-14' => 'docker run --rm -v $(pwd):/app -w /app/tests/sdks/java --env PUB_CACHE=vendor maven:3.6-jdk-14-slim mvn clean install test -q',
             ],
         ],
-
         // 'csharp' => [
         //     'class' => 'Appwrite\SDK\Language\CSharp',
         //     'build' => [
@@ -65,7 +77,6 @@ class SDKTest extends TestCase
         //         // 'java-11' => 'docker run --rm -v $(pwd):/app -w /app/tests/sdks/java --env PUB_CACHE=vendor maven:3.6-jdk-11-slim mvn clean install test -q'
         //     ],
         // ],
-
         'typescript' => [
             'class' => 'Appwrite\SDK\Language\TypeScript',
             'build' => [
@@ -78,8 +89,6 @@ class SDKTest extends TestCase
                 'nodejs-12' => 'docker run --rm -v $(pwd):/app -w /app node:12.12 node tests/sdks/typescript/tests.js',
             ],
         ],
-
-        
         'deno' => [
             'class' => 'Appwrite\SDK\Language\Deno',
             'build' => [
@@ -88,7 +97,6 @@ class SDKTest extends TestCase
                 'deno-1.0.0' => 'docker run --rm -v $(pwd):/app -w /app hayd/alpine-deno:1.1.0 run --allow-net --allow-read tests/languages/deno/tests.ts', // TODO: use official image when its out
             ],
         ],
-
         'node' => [
             'class' => 'Appwrite\SDK\Language\Node',
             'build' => [
@@ -98,9 +106,9 @@ class SDKTest extends TestCase
                 'nodejs-8' => 'docker run --rm -v $(pwd):/app -w /app node:8.16 node tests/languages/node/test.js',
                 'nodejs-10' => 'docker run --rm -v $(pwd):/app -w /app node:10.16 node tests/languages/node/test.js',
                 'nodejs-12' => 'docker run --rm -v $(pwd):/app -w /app node:12.12 node tests/languages/node/test.js',
+                'nodejs-14' => 'docker run --rm -v $(pwd):/app -w /app node:14.4 node tests/languages/node/test.js',
             ],
         ],
-
         'ruby' => [
             'class' => 'Appwrite\SDK\Language\Ruby',
             'build' => [
@@ -112,7 +120,6 @@ class SDKTest extends TestCase
                 'ruby-2.4' => 'docker run --rm -v $(pwd):/app -w /app ruby:2.4.9 ruby tests/languages/ruby/tests.rb',
             ],
         ],
-
         'python' => [
             'class' => 'Appwrite\SDK\Language\Python',
             'build' => [
@@ -155,6 +162,7 @@ class SDKTest extends TestCase
         }
 
         $whitelist = ['php', 'java', 'node', 'ruby', 'python', 'typescript', 'deno'];
+        $whitelist = ['js'];
 
         foreach ($this->languages as $language => $options) {
             if(!empty($whitelist) && !in_array($language, $whitelist)) {
